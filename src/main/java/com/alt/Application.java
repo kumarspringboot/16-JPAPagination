@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Bean;
 import com.alt.repository.EmployeeRepository;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -50,16 +51,30 @@ public class Application {
 //            List<EmployeeEntity> emplEntities = repo.getAllEmployees();
 //            emplEntities.forEach(System.out::println);
 
-            int page = 1;
+            int page = 0;
             int size = 10;
             for(int i=0;i<10;i++) {
                 System.out.println("Page=>>>>>>>>>>>>>>>"+i);
+
                 Pageable pageable = (Pageable) PageRequest.of(page, size, Sort.by("name").ascending());
+                Page<EmployeeEntity> allPage = repo.findAll(pageable);
+                System.out.println("Total Pages:"+allPage.getTotalPages() +
+                        "Total Elements:"+allPage.getTotalElements() +
+                        "Total Size"+allPage.getSize());
+
                 List<EmployeeEntity> all = repo.findAll(pageable).getContent();
                 all.forEach(data -> {
                     System.out.println(data);
                 });
                 repo.findAll(pageable).forEach(System.out::println);
+
+                int start = page *size  + 1;
+                int end = Math.min(start + size - 1, (int) allPage.getTotalElements());
+
+                System.out.println("Page " + (page + 1) + " of " + allPage.getTotalPages() +
+                        " → Records " + start + " - " + end + " of " + allPage.getTotalElements());
+                   page++;
+
             }
 //            EmployeeEntity allEmployee = repo.getAllEmployee(5001);
 //            System.out.println(allEmployee);
